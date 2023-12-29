@@ -25,7 +25,7 @@ async function main(){
     app.use(express.static("public"))
     
     httpServer.listen(5000)
-}
+} 
 
 main()
 
