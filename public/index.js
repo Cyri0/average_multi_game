@@ -16,6 +16,7 @@ canvasEl.height = window.innerHeight
 const canvas = canvasEl.getContext("2d")
 
 let map = [[]]
+let players = []
 
 socket.on('connect', ()=>{
     console.log("connected")
@@ -23,6 +24,10 @@ socket.on('connect', ()=>{
 
 socket.on('map', (loadedMap)=>{
     map = loadedMap
+})
+
+socket.on('players', (serverPlayers) => {
+    players = serverPlayers
 })
 
 const inputs = {
@@ -90,7 +95,10 @@ function loop(){
         }
     }
 
-    canvas.drawImage(skeletonImage,0,0)
+
+    for(const player of players){
+        canvas.drawImage(skeletonImage,player.x,player.y)
+    }
 
     window.requestAnimationFrame(loop)
 }
