@@ -1,4 +1,3 @@
-const { log } = require('console')
 const express = require('express')
 
 const { createServer } = require('http')
@@ -10,10 +9,24 @@ const httpServer = createServer(app)
 
 const io = new Server(httpServer)
 
-io.on('connect', (socket) => {
-    console.log(socket);
-})
+const loadMap = require('./mapLoader')
 
-app.use(express.static("public"))
+async function main(){
 
-httpServer.listen(5000)
+    const map2D = await loadMap()
+
+    console.log(map2D);
+
+    io.on('connect', (socket) => {
+        console.log(`user connected: ${socket.id}`)
+        io.emit('map', map2D)
+    })
+    
+    app.use(express.static("public"))
+    
+    httpServer.listen(5000)
+}
+
+main()
+
+
