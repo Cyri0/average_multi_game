@@ -1,9 +1,19 @@
+const { log } = require('console')
 const express = require('express')
+
+const { createServer } = require('http')
+const { Server } = require('socket.io')
 
 const app = express()
 
+const httpServer = createServer(app)
+
+const io = new Server(httpServer)
+
+io.on('connect', (socket) => {
+    console.log(socket);
+})
+
 app.use(express.static("public"))
 
-app.listen(5000)
-
-
+httpServer.listen(5000)
