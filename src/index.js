@@ -1,10 +1,10 @@
 const express = require('express')
-
+var cors = require('cors')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
 const app = express()
-
+app.use(cors())
 const httpServer = createServer(app)
 
 const io = new Server(httpServer)
@@ -22,17 +22,17 @@ function tick(){
     for (const player of players){
         const inputs = inputsMap[player.id]
 
-        if(inputs.up){
+        if(inputs.up && player.y > 0){
             player.y -= SPEED
         }
-        else if(inputs.down){
+        if(inputs.down && player.y < 465){
             player.y += SPEED
         }
-        else if(inputs.left){
+        if(inputs.left && player.x > 0){
             player.x -= SPEED
 
         }
-        else if(inputs.right){
+        if(inputs.right&& player.x < 465){
             player.x += SPEED
         }
     }
@@ -58,8 +58,8 @@ async function main(){
         
         players.push({
             id: socket.id,
-            x: 0,
-            y: 0
+            x: 185,
+            y: 222
         })
 
         socket.emit('map', map2D)
@@ -75,7 +75,7 @@ async function main(){
     
     app.use(express.static("public"))
     
-    httpServer.listen(5000)
+    httpServer.listen(8000)
 
     setInterval(tick, 1000 / TICK_RATE)
 } 

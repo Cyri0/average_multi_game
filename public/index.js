@@ -1,4 +1,7 @@
-const socket = io(`ws://localhost:5000`)
+let coordinates = document.getElementById('coordinates')
+coordinates.innerText = 'asd'
+
+const socket = io.connect(`ws://192.168.0.137:8000`)
 
 const mapImage = new Image()
 mapImage.src = '/assets/AllAssetsPreview.png'
@@ -71,9 +74,20 @@ window.addEventListener('keyup', (e)=>{
     socket.emit('inputs', inputs)
 })
 
-
 function loop(){
-    canvas.clearRect(0,0,canvas.width, canvas.height)
+    canvas.clearRect(0,0,canvasEl.width, canvasEl.height)
+
+    const myPlayer = players.find((player) => player.id === socket.id)  
+    
+    let cameraX = 0
+    let cameraY = 0
+    
+    if(myPlayer){
+        coordinates.innerText = `${myPlayer.x}|${myPlayer.y}`
+        cameraX = parseInt(myPlayer.x - canvasEl.width / 2)
+        cameraY = parseInt(myPlayer.y - canvasEl.height / 2)
+    }
+
 
     for (let row = 0; row < map.length; row++) {
         for (let col = 0; col < map[0].length; col++) {
@@ -87,17 +101,17 @@ function loop(){
                 imageRow * TILE_SIZE,
                 TILE_SIZE,
                 TILE_SIZE,
-                col * TILE_SIZE,
-                row * TILE_SIZE,
+                col * TILE_SIZE - cameraX,
+                row * TILE_SIZE - cameraY,
                 TILE_SIZE,
                 TILE_SIZE
             )        
         }
     }
 
-
+    
     for(const player of players){
-        canvas.drawImage(skeletonImage,player.x,player.y)
+        canvas.drawImage(skeletonImage,player.x - cameraX,player.y-cameraY)
     }
 
     window.requestAnimationFrame(loop)
