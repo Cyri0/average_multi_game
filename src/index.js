@@ -44,8 +44,6 @@ async function main(){
 
     const map2D = await loadMap()
 
-    console.log(map2D);
-
     io.on('connect', (socket) => {
         console.log(`user connected: ${socket.id}`)
         

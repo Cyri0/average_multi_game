@@ -7,7 +7,7 @@ const mapImage = new Image()
 mapImage.src = '/assets/AllAssetsPreview.png'
 
 const skeletonImage = new Image()
-skeletonImage.src = '/assets/skeleton_front.png'
+skeletonImage.src = '/assets/skeleton.png'
 
 const TILE_SIZE = 16
 const TILES_IN_ROW = 12
@@ -109,12 +109,40 @@ function loop(){
         }
     }
 
+    drawCharacter(canvas,players, cameraX, cameraY)
     
-    for(const player of players){
-        canvas.drawImage(skeletonImage,player.x - cameraX,player.y-cameraY)
+    window.requestAnimationFrame(loop)
+}
+
+
+function drawCharacter(canvas, players, cameraX, cameraY){
+    let offsetX = 0
+    let offsetY = 0
+
+    if(inputs['down']){
+        offsetY = 0
+    }
+    else if(inputs['up']){
+        offsetY = TILE_SIZE
+    }else if(inputs['right']){
+        offsetY = 2*TILE_SIZE
+    }else if(inputs['left']){
+        offsetY = 3*TILE_SIZE
     }
 
-    window.requestAnimationFrame(loop)
+    for(const player of players){
+        canvas.drawImage(
+            skeletonImage, // image
+            offsetX, // sx
+            offsetY, // sy
+            16, // sWidth
+            16, // sHeight
+            player.x - cameraX, // dx
+            player.y - cameraY, // dy
+            16, // sWidth
+            16, // dHeight
+            )
+    }
 }
 
 window.requestAnimationFrame(loop)
