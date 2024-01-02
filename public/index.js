@@ -40,6 +40,9 @@ const inputs = {
     'right': false,
 }
 
+let animationList = [0,1,2,3,4]
+let animationIndex = 0
+
 window.addEventListener('keydown', (e)=>{
     const k = e.key.toUpperCase();
     if(k === 'W'){
@@ -58,6 +61,7 @@ window.addEventListener('keydown', (e)=>{
 })
 
 window.addEventListener('keyup', (e)=>{
+    animationIndex = 0
     const k = e.key.toUpperCase();
     if(k === 'W'){
         inputs['up'] = false
@@ -74,6 +78,8 @@ window.addEventListener('keyup', (e)=>{
     socket.emit('inputs', inputs)
 })
 
+
+
 function loop(){
     canvas.clearRect(0,0,canvasEl.width, canvasEl.height)
 
@@ -87,7 +93,6 @@ function loop(){
         cameraX = parseInt(myPlayer.x - canvasEl.width / 2)
         cameraY = parseInt(myPlayer.y - canvasEl.height / 2)
     }
-
 
     for (let row = 0; row < map.length; row++) {
         for (let col = 0; col < map[0].length; col++) {
@@ -114,20 +119,40 @@ function loop(){
     window.requestAnimationFrame(loop)
 }
 
-
 function drawCharacter(canvas, players, cameraX, cameraY){
     let offsetX = 0
     let offsetY = 0
 
+    let base_tick = 5
+    let spreetNumber = 5
+
+    let calculateOffsetX = (animationIndex, base_tick) => {
+        return parseInt(animationIndex/base_tick) * TILE_SIZE
+    }
+
+    let setAnimationIndex = (animationIndex) => {
+        if(animationIndex >= ((spreetNumber - 1)*base_tick))
+            return 0
+        return animationIndex+1
+    }
+
     if(inputs['down']){
         offsetY = 0
+        offsetX = calculateOffsetX(animationIndex, base_tick)
+        animationIndex = setAnimationIndex(animationIndex)
     }
     else if(inputs['up']){
         offsetY = TILE_SIZE
+        offsetX = calculateOffsetX(animationIndex, base_tick)
+        animationIndex = setAnimationIndex(animationIndex)
     }else if(inputs['right']){
         offsetY = 2*TILE_SIZE
+        offsetX = calculateOffsetX(animationIndex, base_tick)
+        animationIndex = setAnimationIndex(animationIndex)
     }else if(inputs['left']){
         offsetY = 3*TILE_SIZE
+        offsetX = calculateOffsetX(animationIndex, base_tick)
+        animationIndex = setAnimationIndex(animationIndex)
     }
 
     for(const player of players){

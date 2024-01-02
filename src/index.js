@@ -23,16 +23,26 @@ function tick(){
         const inputs = inputsMap[player.id]
 
         if(inputs.up && player.y > 0){
-            player.y -= SPEED
+            if(inputs.right || inputs.left){
+                player.y -= parseInt(SPEED / 2)
+            }
+            else{
+                player.y -= SPEED
+            }
         }
-        if(inputs.down && player.y < 465){
-            player.y += SPEED
+        else if(inputs.down && player.y < 465){
+            if(inputs.right || inputs.left){
+                player.y += parseInt(SPEED / 2)
+            }
+            else{
+                player.y += SPEED
+            }
         }
-        if(inputs.left && player.x > 0){
-            player.x -= SPEED
 
+        if(inputs.left && player.x > 0){
+                player.x -= SPEED
         }
-        if(inputs.right&& player.x < 465){
+        else if(inputs.right&& player.x < 465){
             player.x += SPEED
         }
     }
