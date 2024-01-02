@@ -38,6 +38,8 @@ const inputs = {
     'down': false,
     'left': false,
     'right': false,
+    'lastDirection': 'down',
+    'slash': false
 }
 
 let animationList = [0,1,2,3,4]
@@ -47,15 +49,24 @@ window.addEventListener('keydown', (e)=>{
     const k = e.key.toUpperCase();
     if(k === 'W'){
         inputs['up'] = true
+        inputs['lastDirection'] = 'up'
     }
     else if(k === 'A'){
         inputs['left'] = true
+        inputs['lastDirection'] = 'left'
+
     }
     else if(k === 'S'){
         inputs['down'] = true
+        inputs['lastDirection'] = 'down'
+
     }
     else if(k === 'D'){
         inputs['right'] = true
+        inputs['lastDirection'] = 'right'
+
+    }else if(k === 'SHIFT'){
+        inputs['slash'] = true
     }
     socket.emit('inputs', inputs)
 })
@@ -74,6 +85,9 @@ window.addEventListener('keyup', (e)=>{
     }
     else if(k === 'D'){
         inputs['right'] = false
+    }
+    else if(k === 'SHIFT'){
+        inputs['slash'] = false
     }
     socket.emit('inputs', inputs)
 })
@@ -119,41 +133,72 @@ function loop(){
     window.requestAnimationFrame(loop)
 }
 
-function drawCharacter(canvas, players, cameraX, cameraY){
+function calculateAnimations(base_tick){
     let offsetX = 0
     let offsetY = 0
-
-    let base_tick = 5
-    let spreetNumber = 5
 
     let calculateOffsetX = (animationIndex, base_tick) => {
         return parseInt(animationIndex/base_tick) * TILE_SIZE
     }
 
-    let setAnimationIndex = (animationIndex) => {
+    let setAnimationIndex = (animationIndex, base_tick, spreetNumber) => {
         if(animationIndex >= ((spreetNumber - 1)*base_tick))
             return 0
         return animationIndex+1
     }
 
-    if(inputs['down']){
-        offsetY = 0
-        offsetX = calculateOffsetX(animationIndex, base_tick)
-        animationIndex = setAnimationIndex(animationIndex)
+    if(inputs['slash']){
+        console.log('SLASH!');
+        if(inputs['lastDirection'] == 'down'){
+            offsetY = TILE_SIZE * 4
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            animationIndex = setAnimationIndex(animationIndex, base_tick, 4)
+        }
+        else if(inputs['lastDirection'] == 'up'){
+            offsetY = TILE_SIZE * 5
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            animationIndex = setAnimationIndex(animationIndex, base_tick, 4)
+        }
+        else if(inputs['lastDirection'] == 'right'){
+            offsetY = TILE_SIZE * 6
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            animationIndex = setAnimationIndex(animationIndex, base_tick, 4)
+        }
+        else if(inputs['lastDirection'] == 'left'){
+            offsetY = TILE_SIZE * 7
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            animationIndex = setAnimationIndex(animationIndex, base_tick, 4)
+        }
+    }else{
+        if(inputs['down'] || inputs['lastDirection'] == 'down'){
+            offsetY = 0
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            if(inputs['down'])
+                animationIndex = setAnimationIndex(animationIndex, base_tick, 5)
+        }
+        else if(inputs['up']|| inputs['lastDirection'] == 'up'){
+            offsetY = TILE_SIZE
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            if(inputs['up'])
+                animationIndex = setAnimationIndex(animationIndex, base_tick, 5)
+        }else if(inputs['right'] || inputs['lastDirection'] == 'right'){
+            offsetY = 2*TILE_SIZE
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            if(inputs['right'])
+                animationIndex = setAnimationIndex(animationIndex, base_tick, 5)
+        }else if(inputs['left'] || inputs['lastDirection'] == 'left'){
+            offsetY = 3*TILE_SIZE
+            offsetX = calculateOffsetX(animationIndex, base_tick)
+            if(inputs['left'])
+                animationIndex = setAnimationIndex(animationIndex, base_tick, 5)
+        }
     }
-    else if(inputs['up']){
-        offsetY = TILE_SIZE
-        offsetX = calculateOffsetX(animationIndex, base_tick)
-        animationIndex = setAnimationIndex(animationIndex)
-    }else if(inputs['right']){
-        offsetY = 2*TILE_SIZE
-        offsetX = calculateOffsetX(animationIndex, base_tick)
-        animationIndex = setAnimationIndex(animationIndex)
-    }else if(inputs['left']){
-        offsetY = 3*TILE_SIZE
-        offsetX = calculateOffsetX(animationIndex, base_tick)
-        animationIndex = setAnimationIndex(animationIndex)
-    }
+
+    return {offsetX: offsetX, offsetY: offsetY}
+}
+
+function drawCharacter(canvas, players, cameraX, cameraY){
+    let {offsetX, offsetY} = calculateAnimations(5)
 
     for(const player of players){
         canvas.drawImage(

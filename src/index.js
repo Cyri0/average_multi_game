@@ -61,7 +61,9 @@ async function main(){
             up: false,
             down: false,
             right: false,
-            left: false
+            left: false,
+            lastDirection: 'down',
+            slash: false
         }
         
         players.push({
